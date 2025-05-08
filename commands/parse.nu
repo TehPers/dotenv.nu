@@ -38,7 +38,7 @@ export def tree [
   let expanded = $file | path expand
 
   # Check if the final directory has been reached
-  if ($until | is-empty) and ($expanded | path dirname) == ($until | path expand) {
+  if ($until | is-not-empty) and ($expanded | path dirname) == ($until | path expand) {
     return []
   }
 
