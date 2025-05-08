@@ -1,0 +1,7 @@
+{
+  name: "dotenv"
+  type: "module"
+  version: "0.1.0"
+  description: "Commands for parsing and loading dotenv files"
+  license: "MIT"
+}
