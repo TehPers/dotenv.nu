@@ -9,6 +9,29 @@ use dotenv.nu
 dotenv load
 ```
 
+## Commands
+
+**Parsing:**
+
+```nushell
+dotenv parse [file] # Parse a dotenv file
+dotenv parse tree [file] # Recursively parse dotenv files
+dotenv collect # Collect parsed dotenv files into a single record
+
+# You can manually load all variables defined in a dotenv file with:
+dotenv parse | dotenv collect | load-env
+```
+
+**Loading:**
+
+```nushell
+dotenv load [file] # Load a dotenv file into $env
+dotenv load tree [file] # Recursively load dotenv files into $env
+
+dotenv autoenv enable # Automatically load dotenv files into $env
+dotenv autoenv disable # Disable autoenv
+```
+
 ## Installation
 
 Clone this repository, then import it with `use dotenv.nu`:
