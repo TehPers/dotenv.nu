@@ -6,8 +6,9 @@ use ./parse.nu
 @search-terms dotenv .env environment
 export def --env main [
   file: path = ".env" # The path to the dotenv file.
+  --exists (-e) # Load only if the dotenv file exists.
 ]: nothing -> nothing {
-  parse $file | collect | load-env
+  parse $file --exists=$exists | collect | load-env
 }
 
 # Recursively load a dotenv file and all dotenv files in its parent directories.

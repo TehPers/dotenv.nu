@@ -4,7 +4,7 @@ use ./load.nu
 @category env
 @search-terms dotenv .env environment
 export def --env enable [
-  file: path = ".env" # The path to the dotenv file.
+  file: string = ".env" # The path to the dotenv file.
   --tree (-r) # Recursively load dotenv files from parent directories too.
 ]: nothing -> nothing {
   # If already enabled, disable first
@@ -12,9 +12,9 @@ export def --env enable [
 
   # Create the hook
   let hook = if $tree {
-    { try { load tree --exists } }
+    { load tree --exists $file }
   } else {
-    { try { load } }
+    { load --exists $file }
   }
 
   # Update the config

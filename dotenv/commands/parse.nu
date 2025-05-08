@@ -10,11 +10,25 @@
 @example "parse .env file" { dotenv parse } --result [{ name: "A", value: "3" }, { name: "B", value: "true" }]
 export def main [
   file: path = ".env" # The path to the file.
+  --exists (-e) # Parse only if the dotenv file exists.
 ]: nothing -> table<name: string, value: string> {
-  open -r $file
-  | lines
-  | filter {|line| not ($line | str trim --left | str starts-with '#')}
-  | parse -r '(?P<name>.+?)=(?P<value>.+)'
+  if ($file | path exists) and ($file | path type) == "file" {
+    open -r $file
+    | lines
+    | filter {|line| not ($line | str trim --left | str starts-with '#')}
+    | parse -r '(?P<name>.+?)=(?P<value>.+)'
+  } else if $exists {
+    []
+  } else {
+    error make {
+      msg: "File not found"
+      label: {
+        text: "File not found"
+        span: (metadata $file).span
+      }
+      help: $"'($file | path expand)' does not exist"
+    }
+  }
 }
 
 # Parse a dotenv file and all similarly named dotenv files in its parent directories.
@@ -32,8 +46,8 @@ export def main [
 @example "parse .env files until a directory is reached" { dotenv parse tree --until /a/b } --result [{ name: "B", value: "true", source: "/a/b/c/.env" }]
 export def tree [
   file: path = ".env" # The path to the file.
-  --exists (-e) # Load only if the dotenv file exists. Parent directories are always loaded with this flag.
-  --until: path # Load until this directory is reached.
+  --exists (-e) # Parse only if the dotenv file exists. Parent directories are always loaded with this flag.
+  --until: path # Parse until this directory is reached.
 ]: nothing -> table<name: string, value: string, source: path> {
   let expanded = $file | path expand
 
@@ -43,21 +57,8 @@ export def tree [
   }
 
   # Parse dotenv file
-  let contents = if ($expanded | path exists) and ($expanded | path type) == "file" {
-    main $expanded
-    | insert source $expanded
-  } else if $exists {
-    []
-  } else {
-    error make {
-      msg: "File not found"
-      label: {
-        text: "File not found"
-        span: (metadata $file).span
-      }
-      help: $"'($expanded)' does not exist"
-    }
-  }
+  let contents = main $expanded --exists=$exists
+  | insert source $expanded
 
   # Parse parent directory's dotenv (if possible)
   let filename = $expanded | path basename
