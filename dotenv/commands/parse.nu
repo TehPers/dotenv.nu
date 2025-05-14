@@ -1,3 +1,5 @@
+use ../lib/parser.nu
+
 # Parse a dotenv file.
 #
 # The resulting table contains all the key-value pairs in the dotenv file in the
@@ -13,10 +15,7 @@ export def main [
   --exists (-e) # Parse only if the dotenv file exists.
 ]: nothing -> table<name: string, value: string> {
   if ($file | path exists) and ($file | path type) == "file" {
-    open -r $file
-    | lines
-    | filter {|line| not ($line | str trim --left | str starts-with '#')}
-    | parse -r '(?P<name>.+?)=(?P<value>.+)'
+    open -r $file | parser parse
   } else if $exists {
     []
   } else {
