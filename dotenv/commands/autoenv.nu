@@ -47,5 +47,5 @@ export def --env disable []: nothing -> nothing {
 
   # Remove all dotenv hooks
   $env.config.hooks.env_change.PWD = $env.config.hooks.env_change.PWD
-  | filter {|hook| "__dotenv" not-in $hook }
+  | where {|hook| "__dotenv" not-in $hook }
 }
